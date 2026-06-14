@@ -11,7 +11,7 @@ COOKIE_FILE := .dvwa-cookie
 ATTACK      := BASE="$(BASE)" COOKIE_FILE="$(COOKIE_FILE)" bash scripts/sqlmap-attack.sh
 LEVEL       ?= low
 
-.PHONY: help up setup scan dump crack level demo ui down clean
+.PHONY: help up setup scan dump crack level demo ui ui-down down clean
 
 help: ## Lista os comandos disponiveis
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -48,9 +48,13 @@ demo: up setup scan dump ## Fluxo completo: sobe, configura, ataca e extrai os d
 ui: ## Sobe a interface web (Flask + Next.js) em http://localhost:3000
 	@bash scripts/run-ui.sh
 
+ui-down: ## Para a interface web (backend Flask + frontend Next.js)
+	-@pkill -f '[b]ackend/app.py' && echo "[+] backend Flask parado" || echo "[*] backend ja estava parado"
+	-@pkill -f '[n]ext(-server| dev)' && echo "[+] frontend Next.js parado" || echo "[*] frontend ja estava parado"
+
 down: ## Para e remove o container do DVWA
 	-docker rm -f $(NAME)
 
-clean: down ## Para o container e remove os artefatos gerados
+clean: down ui-down ## Para o container, a interface web e remove os artefatos gerados
 	-rm -f $(COOKIE_FILE)
 	-rm -rf $(HOME)/.local/share/sqlmap/output/localhost
