@@ -5,3 +5,7 @@ CLAUDE.md
 
 # Arquivos de plano/sessão
 .plans/
+
+# Artefatos de runtime da demo (gerados pelo Makefile)
+.dvwa-cookie
+output/

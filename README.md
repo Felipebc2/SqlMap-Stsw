@@ -24,10 +24,20 @@ de teste seguro (DVWA via Docker) e o roteiro da apresentação para a matéria 
 | 03 | [Ambiente de Teste](docs/03-ambiente-de-teste.md) | Subindo o DVWA com Docker para a demo |
 | 04 | [Uso e Comandos](docs/04-uso-e-comandos.md) | Comandos, flags e exemplos práticos |
 | 05 | [Roteiro da Apresentação](docs/05-roteiro-apresentacao.md) | Script cronometrado do seminário |
+| 06 | [Comandos](docs/06-comandos-apresentacao.md) | Comandos prontos para digitar ao vivo na demo |
 
 ## 🚀 Começando
 
 1. Leia a [Introdução](docs/01-introducao.md) para entender o que a ferramenta faz.
 2. Siga a [Instalação](docs/02-instalacao.md) e o [Ambiente de Teste](docs/03-ambiente-de-teste.md).
 3. Pratique com o guia de [Uso e Comandos](docs/04-uso-e-comandos.md).
-4. Use o [Roteiro da Apresentação](docs/05-roteiro-apresentacao.md) no dia.
+4. Use o [Roteiro da Apresentação](docs/05-roteiro-apresentacao.md) e a [Cola de Comandos](docs/06-comandos-apresentacao.md) no dia.
+
+## ⚡ Reproduzir a demo rapidamente (Makefile)
+
+Com **Docker** e **sqlmap** instalados, suba o ambiente e rode o ataque completo com:
+
+```bash
+make demo     # sobe o DVWA, configura e executa o ataque ponta a ponta
+make help     # lista todos os comandos (up, setup, scan, dump, crack, down, clean)
+```
