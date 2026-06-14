@@ -39,5 +39,26 @@ Com **Docker** e **sqlmap** instalados, suba o ambiente e rode o ataque completo
 
 ```bash
 make demo     # sobe o DVWA, configura e executa o ataque ponta a ponta
+make ui       # abre a interface web da demo (Flask + Next.js) em http://localhost:3000
 make help     # lista todos os comandos (up, setup, scan, dump, crack, down, clean)
 ```
+
+> A interface web (`make ui`) é um wrapper sobre os mesmos comandos `make`: botões
+> para cada etapa, saída do SQLMap ao vivo e um seletor de dificuldade do DVWA.
+> Backend em **Flask** (`backend/`) e frontend em **Next.js** (`web/`).
+
+### Dificuldade do DVWA e técnica de ataque
+
+Troque o nível com `make level LEVEL=<low|medium|high|impossible>`. Os alvos `scan`,
+`dump` e `crack` **adaptam a técnica automaticamente** ao nível atual (lógica em
+`scripts/sqlmap-attack.sh`):
+
+| Nível | Como o `id` chega ao servidor | Técnica do SQLMap |
+|-------|-------------------------------|-------------------|
+| **low** | `GET` direto | injeção comum no parâmetro `id` |
+| **medium** | `POST` (dropdown + `mysqli_real_escape_string`) | injeção **numérica** via `--data` (o escape não protege número) |
+| **high** | `POST` em `session-input.php`, resultado em `index.php` | injeção de **segundo grau** via `--second-url` |
+| **impossible** | consulta preparada (prepared statement) | **bloqueado** — serve para mostrar a mitigação correta |
+
+Ou seja: `make level LEVEL=medium && make crack` extrai e quebra as senhas mesmo no
+medium; o mesmo vale para o high. O `impossible` é o contraponto de defesa.

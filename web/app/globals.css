@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+:root {
+  /* Tema terminal-dark: fundo quase preto, texto verde. */
+  --background: #07090a;
+  --foreground: #b9ffce;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  /* leve textura de "scanlines" para o clima de console */
+  background-image: repeating-linear-gradient(
+    rgba(57, 255, 20, 0.03) 0px,
+    rgba(57, 255, 20, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
