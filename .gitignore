@@ -1,0 +1,7 @@
+# Arquivos de tooling do Claude Code (não fazem parte do trabalho)
+.claude/
+CLAUDE.md
+.claude.json
+
+# Arquivos de plano/sessão
+.plans/
