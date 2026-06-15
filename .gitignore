@@ -2,6 +2,7 @@
 .claude/
 CLAUDE.md
 .claude.json
+.remember
 
 # Arquivos de plano/sessão
 .plans/
@@ -12,4 +13,3 @@ CLAUDE.md
 # Artefatos de runtime da demo (gerados pelo Makefile)
 .dvwa-cookie
 output/
-
