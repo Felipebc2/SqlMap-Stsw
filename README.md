@@ -31,7 +31,23 @@ de teste seguro (DVWA via Docker) e o roteiro da apresentação para a matéria 
 1. Leia a [Introdução](docs/01-introducao.md) para entender o que a ferramenta faz.
 2. Siga a [Instalação](docs/02-instalacao.md) e o [Ambiente de Teste](docs/03-ambiente-de-teste.md).
 3. Pratique com o guia de [Uso e Comandos](docs/04-uso-e-comandos.md).
-4. Use o [Roteiro da Apresentação](docs/05-roteiro-apresentacao.md) e a [Cola de Comandos](docs/06-comandos-apresentacao.md) no dia.
+4. Aplique com os [Comandos](docs/06-comandos-apresentacao.md).
+
+## 🧪 Descrição do exemplo implementado
+
+O exemplo prático deste repositório é uma **demonstração ponta a ponta de SQL injection**
+contra o **DVWA** (*Damn Vulnerable Web Application*), executada de forma automatizada:
+
+1. **Sobe** um container Docker com o DVWA (alvo intencionalmente vulnerável).
+2. **Configura** o DVWA: cria o banco, faz login com `admin/password` e salva o cookie de sessão.
+3. **Ataca** com o SQLMap: detecta a injeção no parâmetro vulnerável e lista os bancos de dados.
+4. **Extrai** a tabela `dvwa.users` (usuários e *hashes* de senha) e, opcionalmente, **quebra**
+   os hashes por dicionário.
+
+Toda a orquestração fica em um **Makefile** (que chama os scripts em `scripts/`), de modo que
+cada etapa pode ser rodada isolada ou de uma vez com `make demo`. A técnica de ataque se
+**adapta automaticamente** ao nível de dificuldade do DVWA (veja a tabela mais abaixo). Há ainda
+uma **interface web** (Flask + Next.js) que é um wrapper visual sobre os mesmos comandos.
 
 ## ⚡ Reproduzir a demo rapidamente (Makefile)
 
@@ -40,8 +56,25 @@ Com **Docker** e **sqlmap** instalados, suba o ambiente e rode o ataque completo
 ```bash
 make demo     # sobe o DVWA, configura e executa o ataque ponta a ponta
 make ui       # abre a interface web da demo (Flask + Next.js) em http://localhost:3000
-make help     # lista todos os comandos (up, setup, scan, dump, crack, down, clean)
+make help     # lista todos os comandos disponíveis
 ```
+
+### Comandos `make` disponíveis
+
+| Comando | O que faz |
+|---------|-----------|
+| `make help` | Lista todos os comandos disponíveis (gerado automaticamente a partir do Makefile). |
+| `make up` | Sobe o container Docker do DVWA (`vulnerables/web-dvwa`) na porta 80 e aguarda ele ficar pronto. |
+| `make setup` | Cria o banco do DVWA, faz login com `admin/password` e salva o cookie de sessão em `.dvwa-cookie`. |
+| `make scan` | Roda o SQLMap para **detectar a injeção** e listar os bancos de dados (`--dbs --flush-session`). |
+| `make dump` | **Extrai** a tabela `dvwa.users` (usuários e hashes de senha). |
+| `make crack` | Extrai a tabela `users` e ainda **quebra os hashes** de senha por dicionário (`--answers="crack=Y"`). |
+| `make level LEVEL=<nível>` | Troca a dificuldade do DVWA. Aceita `low`, `medium`, `high` ou `impossible` (requer `make setup` antes). |
+| `make demo` | **Fluxo completo**: encadeia `up → setup → scan → dump` num único comando. |
+| `make ui` | Sobe a **interface web** (backend Flask + frontend Next.js) em `http://localhost:3000`. |
+| `make ui-down` | Para a interface web (encerra os processos do Flask e do Next.js). |
+| `make down` | Para e remove o container do DVWA. |
+| `make clean` | Faz `down` + `ui-down` e remove os artefatos gerados (cookie e saída do SQLMap). |
 
 > A interface web (`make ui`) é um wrapper sobre os mesmos comandos `make`: botões
 > para cada etapa, saída do SQLMap ao vivo e um seletor de dificuldade do DVWA.
